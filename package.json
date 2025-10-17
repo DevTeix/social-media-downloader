@@ -1,196 +1,22 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Downloader de Mídias Sociais</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #111827;
-        }
-
-        .card {
-            background-color: #1f2937;
-            border: 1px solid #374151;
-            border-radius: 1.5rem;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-            transition: all 0.3s ease-in-out;
-        }
-
-        .btn-gradient {
-            background-image: linear-gradient(to right, #3b82f6, #6366f1);
-            transition: all 0.3s ease-in-out;
-        }
-
-        .btn-gradient:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.3), 0 4px 6px -2px rgba(99, 102, 241, 0.2);
-        }
-
-        .loader {
-            border-top-color: #3b82f6;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-    </style>
-</head>
-
-<body class="flex items-center justify-center min-h-screen text-gray-200 p-4">
-
-    <div class="w-full max-w-2xl mx-auto">
-        <div class="card p-8 md:p-12">
-            <div class="text-center mb-8">
-                <i class="fas fa-download text-5xl text-blue-500 mb-4"></i>
-                <h1 class="text-3xl md:text-4xl font-bold text-white">Downloader de Mídias</h1>
-                <p class="text-gray-400 mt-2">Cole o link do vídeo, Reels ou Story abaixo.</p>
-            </div>
-
-            <div class="flex flex-col sm:flex-row items-center gap-4 mb-6">
-                <input id="urlInput" type="text" placeholder="https://instagram.com/..." class="w-full px-5 py-3 bg-gray-700 border border-gray-600 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-white placeholder-gray-500">
-                <button id="downloadBtn" class="w-full sm:w-auto btn-gradient text-white font-bold py-3 px-8 rounded-full flex items-center justify-center">
-                    <span id="btnText">Baixar</span>
-                    <i id="btnIcon" class="fas fa-arrow-down ml-2"></i>
-                </button>
-            </div>
-
-            <!-- Area de Carregamento e Resultados -->
-            <div id="statusArea" class="mt-8 text-center min-h-[200px] flex items-center justify-center">
-                <!-- Loader -->
-                <div id="loader" class="hidden">
-                    <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-500 h-12 w-12 mb-4 mx-auto"></div>
-                    <p class="text-gray-400">Analisando o link...</p>
-                </div>
-
-                <!-- Mensagem de Erro -->
-                <div id="errorMessage" class="hidden text-red-400">
-                    <i class="fas fa-exclamation-triangle fa-2x mb-4"></i>
-                    <p id="errorText"></p>
-                </div>
-
-                <!-- Resultados -->
-                <div id="result" class="hidden w-full">
-                    <div class="bg-gray-800 rounded-xl p-6 flex flex-col md:flex-row items-center gap-6 border border-gray-700">
-                        <img id="thumbnail" src="" onerror="this.onerror=null;this.src='https://placehold.co/128x128/1f2937/a0aec0?text=Preview';" alt="Thumbnail do Vídeo" class="w-32 h-32 object-cover rounded-lg flex-shrink-0">
-                        <div class="text-left flex-grow">
-                            <p class="text-sm text-gray-400">Pronto para baixar!</p>
-                            <h3 id="title" class="text-lg font-semibold text-white truncate" title="Título do vídeo">Título do vídeo aqui...</h3>
-                            <a id="downloadLink" href="#" download class="mt-4 inline-block btn-gradient text-white font-bold py-2 px-6 rounded-full text-sm">
-                                <i class="fas fa-video mr-2"></i>Baixar Vídeo
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <footer class="text-center mt-8">
-            <p class="text-gray-500 text-sm">Desenvolvido por Elton Teixeira</p>
-        </footer>
-    </div>
-
-    <script>
-        const urlInput = document.getElementById('urlInput');
-        const downloadBtn = document.getElementById('downloadBtn');
-        const btnText = document.getElementById('btnText');
-        const btnIcon = document.getElementById('btnIcon');
-
-        const statusArea = document.getElementById('statusArea');
-        const loader = document.getElementById('loader');
-        const errorMessage = document.getElementById('errorMessage');
-        const errorText = document.getElementById('errorText');
-        const result = document.getElementById('result');
-
-        const thumbnail = document.getElementById('thumbnail');
-        const title = document.getElementById('title');
-        const downloadLink = document.getElementById('downloadLink');
-
-        function isValidUrl(string) {
-            try {
-                new URL(string);
-                return true;
-            } catch (_) {
-                return false;
-            }
-        }
-
-        const resetUI = () => {
-            loader.classList.add('hidden');
-            errorMessage.classList.add('hidden');
-            result.classList.add('hidden');
-            downloadBtn.disabled = false;
-            btnText.textContent = 'Baixar';
-            btnIcon.className = 'fas fa-arrow-down ml-2';
-        };
-        
-        const showError = (message) => {
-            resetUI();
-            errorText.textContent = message;
-            errorMessage.classList.remove('hidden');
-        };
-
-        downloadBtn.addEventListener('click', async () => {
-            const url = urlInput.value.trim();
-
-            if (!url || !isValidUrl(url)) {
-                showError('Por favor, insira um link válido.');
-                return;
-            }
-
-            // Inicia UI de carregamento
-            resetUI();
-            loader.classList.remove('hidden');
-            downloadBtn.disabled = true;
-            btnText.textContent = 'Carregando...';
-            btnIcon.className = 'fas fa-spinner fa-spin ml-2';
-
-            try {
-                // !!! ATENÇÃO AQUI, ELTON !!!
-                // SUBSTITUA A LINHA ABAIXO PELA URL DO SEU SERVIÇO NO RENDER
-                const backendUrl = 'COLE_A_URL_DO_SEU_BACKEND_DO_RENDER_AQUI';
-                
-                const response = await fetch(`${backendUrl}/api/download?url=${encodeURIComponent(url)}`);
-
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || `Erro ${response.status}: Falha ao buscar dados.`);
-                }
-                
-                const data = await response.json();
-
-                // Mostra os resultados
-                thumbnail.src = data.thumbnail || 'https://placehold.co/128x128/1f2937/a0aec0?text=Preview';
-                title.textContent = data.title || 'Vídeo sem título';
-                title.title = data.title || 'Vídeo sem título';
-                downloadLink.href = data.videoUrl;
-
-                resetUI();
-                result.classList.remove('hidden');
-
-            } catch (error) {
-                console.error("Erro detalhado:", error);
-                // Verifica se é erro de rede (backend offline ou CORS)
-                if (error instanceof TypeError) {
-                     showError('Erro de conexão. Verifique se o servidor backend está no ar e configurado corretamente.');
-                } else {
-                    showError(error.message);
-                }
-            } finally {
-                downloadBtn.disabled = false;
-                btnText.textContent = 'Baixar';
-                btnIcon.className = 'fas fa-arrow-down ml-2';
-            }
-        });
-    </script>
-</body>
-
-</html>
+{
+  "name": "social-downloader-backend",
+  "version": "1.0.0",
+  "description": "Backend para o downloader de mídias sociais.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [
+    "downloader",
+    "social-media",
+    "node"
+  ],
+  "author": "Elton Teixeira",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "yt-dlp-wrap": "^2.3.12"
+  }
+}
 
