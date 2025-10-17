@@ -149,15 +149,19 @@
             showLoading(true);
 
             try {
-                // --- MUDANÇA: Adicionando timeout de 30 segundos ---
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 segundos
+                const timeoutId = setTimeout(() => controller.abort(), 30000);
 
                 const response = await fetch(`${backendUrl}/api/download?url=${encodeURIComponent(url)}`, {
+                    method: 'GET',
+                    mode: 'cors',
+                    headers: {
+                        'Accept': 'application/json'
+                    },
                     signal: controller.signal
                 });
 
-                clearTimeout(timeoutId); // Limpa o timeout se a resposta chegar a tempo
+                clearTimeout(timeoutId);
 
                 const data = await response.json();
 
@@ -177,6 +181,20 @@
             } finally {
                 showLoading(false);
             }
+        });
+
+        // Pinga o servidor ao carregar a página para "acordá-lo" e dar feedback no console
+        window.addEventListener('load', () => {
+            console.log("Enviando ping para o servidor para 'acordá-lo'...");
+            fetch(backendUrl, { mode: 'cors' })
+                .then(res => {
+                    if (res.ok) {
+                        console.log("Ping com sucesso. O servidor está ativo.");
+                    } else {
+                        console.log("Ping falhou. O servidor respondeu com um status de erro.");
+                    }
+                })
+                .catch(err => console.error("Ping falhou devido a um erro de rede:", err));
         });
     </script>
 
