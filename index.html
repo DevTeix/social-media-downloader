@@ -98,7 +98,6 @@
         const videoTitle = document.getElementById('videoTitle');
         const downloadLink = document.getElementById('downloadLink');
 
-        // --- ATENÇÃO ELTON: Cole a URL do seu backend do Render aqui ---
         const backendUrl = 'https://social-media-downloader-q0ju.onrender.com';
 
         const showLoading = (isLoading) => {
@@ -150,20 +149,31 @@
             showLoading(true);
 
             try {
-                const response = await fetch(`${backendUrl}/api/download?url=${encodeURIComponent(url)}`);
+                // --- MUDANÇA: Adicionando timeout de 30 segundos ---
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 segundos
+
+                const response = await fetch(`${backendUrl}/api/download?url=${encodeURIComponent(url)}`, {
+                    signal: controller.signal
+                });
+
+                clearTimeout(timeoutId); // Limpa o timeout se a resposta chegar a tempo
+
                 const data = await response.json();
 
-                // --- MUDANÇA IMPORTANTE: Verificando a resposta do servidor ---
                 if (data.success) {
                     showResult(data);
                 } else {
-                    // Mostra o erro amigável que o servidor enviou
                     showError(data.error || 'Ocorreu um erro desconhecido.');
                 }
 
             } catch (error) {
                 console.error('Erro de fetch:', error);
-                showError('Erro de conexão. Não foi possível comunicar com o servidor.');
+                if (error.name === 'AbortError') {
+                    showError('O servidor demorou demais para responder. Tente novamente em um minuto.');
+                } else {
+                    showError('Erro de conexão. Não foi possível comunicar com o servidor.');
+                }
             } finally {
                 showLoading(false);
             }
