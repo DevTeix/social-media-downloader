@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Downloader de Mídias Sociais</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3b82f6;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white flex items-center justify-center min-h-screen p-4">
+
+    <div class="bg-gray-800 w-full max-w-2xl rounded-2xl shadow-2xl p-6 md:p-8 transform transition-all duration-500">
+        <!-- Cabeçalho -->
+        <div class="text-center mb-6">
+            <h1 class="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-600">
+                Downloader de Mídias
+            </h1>
+            <p class="text-gray-400 mt-2">Cole o link do vídeo, Reels ou Story para baixar.</p>
+        </div>
+
+        <!-- Ícones das Plataformas -->
+        <div class="flex justify-center items-center space-x-6 mb-8">
+            <!-- Twitter/X Icon -->
+            <svg class="w-8 h-8 text-gray-500" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path>
+            </svg>
+            <!-- Instagram Icon -->
+            <svg class="w-8 h-8 text-gray-500" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path fill-rule="evenodd" d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.024.06 1.378.06 3.808s-.012 2.784-.06 3.808c-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.024.048-1.378.06-3.808.06s-2.784-.012-3.808-.06c-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.048-1.024-.06-1.378-.06-3.808s.012-2.784.06-3.808c.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 016.08 2.525c.636-.247 1.363-.416 2.427-.465C9.53 2.013 9.884 2 12.315 2zM12 8.118a3.882 3.882 0 100 7.764 3.882 3.882 0 000-7.764zM12 14.25a2.25 2.25 0 110-4.5 2.25 2.25 0 010 4.5zm4.886-6.42a1.03 1.03 0 100-2.06 1.03 1.03 0 000 2.06z" clip-rule="evenodd"></path>
+            </svg>
+            <!-- Facebook Icon -->
+            <svg class="w-8 h-8 text-gray-500" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path fill-rule="evenodd" d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" clip-rule="evenodd"></path>
+            </svg>
+        </div>
+
+        <!-- Formulário de Input -->
+        <div class="flex flex-col sm:flex-row gap-3 mb-6">
+            <input type="text" id="urlInput" placeholder="https://..." class="flex-grow bg-gray-700 text-gray-200 border-2 border-gray-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition-colors">
+            <button id="downloadBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-transform transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-blue-500">
+                Baixar Vídeo
+            </button>
+        </div>
+
+        <!-- Área de Resultados e Loading -->
+        <div id="statusArea" class="text-center min-h-[100px] flex items-center justify-center">
+            <div id="loader" class="loader hidden"></div>
+            <div id="results"></div>
+            <div id="errorMessage" class="text-red-400 font-medium"></div>
+        </div>
+        
+        <!-- Rodapé com o nome do desenvolvedor -->
+        <div class="text-center mt-6 pt-4 border-t border-gray-700/50">
+            <p class="text-sm text-gray-500">Desenvolvido por Elton Teixeira</p>
+        </div>
+    </div>
+
+    <script>
+// ... existing code ... -->
+
