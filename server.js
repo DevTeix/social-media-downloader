@@ -69,4 +69,3 @@ app.get('/api/download', async (req, res) => {
 app.listen(port, () => {
     console.log(`[INFO] Servidor rodando em http://localhost:${port}`);
 });
-
