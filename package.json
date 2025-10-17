@@ -1,0 +1,22 @@
+{
+  "name": "social-downloader-backend",
+  "version": "1.0.0",
+  "description": "Backend para o downloader de mídias sociais.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [
+    "downloader",
+    "social-media",
+    "node"
+  ],
+  "author": "Elton Teixeira",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "yt-dlp-wrap": "^2.3.12"
+  }
+}
+Adiciona package.json
