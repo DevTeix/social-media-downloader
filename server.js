@@ -1,6 +1,5 @@
 const express = require('express');
 const cors = require('cors');
-// MUDANÇA 1: Importando a nova biblioteca
 const youtubedl = require('youtube-dl-exec');
 const path = require('path');
 
@@ -32,13 +31,11 @@ app.get('/api/download', async (req, res) => {
     const videoUrl = req.query.url;
 
     if (!videoUrl) {
-        return res.status(400).json({ error: 'URL do vídeo é obrigatória.' });
+        return res.status(200).json({ success: false, error: 'URL do vídeo é obrigatória.' });
     }
 
     try {
         console.log(`[INFO] Buscando metadados para: ${videoUrl}`);
-
-        // MUDANÇA 2: Usando a nova biblioteca
         const metadata = await youtubedl(videoUrl, {
             dumpSingleJson: true,
             noWarnings: true,
@@ -56,20 +53,22 @@ app.get('/api/download', async (req, res) => {
 
         if (!videoInfo.videoUrl) {
             console.error('[ERROR] Não foi possível encontrar a URL do vídeo nos metadados.');
-            return res.status(500).json({ error: 'Não foi possível extrair a URL do vídeo.' });
+            return res.status(200).json({ success: false, error: 'Não foi possível extrair a URL do vídeo.' });
         }
         
         console.log('[SUCCESS] Metadados encontrados:', videoInfo);
-        res.status(200).json(videoInfo);
+        res.status(200).json({ success: true, ...videoInfo });
 
     } catch (error) {
         console.error('[ERROR] Ocorreu um erro detalhado ao buscar o vídeo.');
-        console.error(error); 
+        console.error(error.stderr || error); 
         
-        const errorMessage = error.stderr || 'Erro desconhecido no servidor.';
-        res.status(500).json({ 
-            error: 'Falha ao obter informações do vídeo. A URL pode estar inválida, ser privada, ou o site pode não ser suportado.',
-            details: errorMessage
+        const userFriendlyError = 'Falha ao obter informações. O vídeo pode ser privado, ter sido removido ou a URL é inválida.';
+        
+        // MUDANÇA IMPORTANTE: Sempre retorna 200, com o erro no corpo do JSON
+        res.status(200).json({ 
+            success: false,
+            error: userFriendlyError,
         });
     }
 });
