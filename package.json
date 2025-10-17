@@ -1,21 +1,18 @@
 {
-  "name": "social-downloader-backend",
+  "name": "social-media-downloader-backend",
   "version": "1.0.0",
-  "description": "Backend para o downloader de mídias sociais.",
+  "description": "Backend server for downloading social media videos.",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
-  "keywords": [
-    "downloader",
-    "social-media",
-    "node"
-  ],
+  "keywords": [],
   "author": "Elton Teixeira",
   "license": "ISC",
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^4.19.2",
-    "yt-dlp-wrap": "^2.3.12"
+    "youtube-dl-exec": "^3.0.4"
   }
 }
+
