@@ -6,22 +6,15 @@ const path = require('path');
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Configuração do yt-dlp
-// Certifique-se de que o binário do yt-dlp está acessível.
-// Se estiver no mesmo diretório, pode ser apenas 'yt-dlp'.
-// Em ambientes como o Render, ele busca no PATH.
 const ytDlpWrap = new YTDlpWrap();
 
-// --- CORREÇÃO IMPORTANTE AQUI ---
-// Lista de sites (origens) que podem fazer requisições para este servidor.
 const allowedOrigins = [
-  'http://localhost:3000', // Para testes locais
-  'https://devteix.github.io' // O endereço do seu site no ar
+  'http://localhost:3000',
+  'https://devteix.github.io'
 ];
 
 const corsOptions = {
   origin: function (origin, callback) {
-    // Permite requisições sem 'origin' (ex: Postman ou apps mobile)
     if (!origin || allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
@@ -30,9 +23,12 @@ const corsOptions = {
   }
 };
 
-// Usa as opções de CORS
 app.use(cors(corsOptions));
-// --- FIM DA CORREÇÃO ---
+
+// Rota de teste para verificar se o servidor está no ar
+app.get('/', (req, res) => {
+    res.status(200).json({ message: 'Servidor está no ar e funcionando!' });
+});
 
 app.get('/api/download', async (req, res) => {
     const videoUrl = req.query.url;
@@ -42,7 +38,7 @@ app.get('/api/download', async (req, res) => {
     }
 
     try {
-        console.log(`Buscando metadados para: ${videoUrl}`);
+        console.log(`[INFO] Buscando metadados para: ${videoUrl}`);
         const metadata = await ytDlpWrap.getVideoInfo(videoUrl);
         
         const videoInfo = {
@@ -51,16 +47,26 @@ app.get('/api/download', async (req, res) => {
             videoUrl: metadata.url,
         };
         
-        console.log('Metadados encontrados:', videoInfo);
-        res.json(videoInfo);
+        console.log('[SUCCESS] Metadados encontrados:', videoInfo);
+        res.status(200).json(videoInfo);
 
     } catch (error) {
-        console.error('Erro detalhado ao buscar vídeo:', error);
-        res.status(500).json({ error: 'Falha ao obter informações do vídeo. A URL pode ser inválida ou o vídeo privado.' });
+        // --- LOG DE ERRO MELHORADO ---
+        console.error('[ERROR] Ocorreu um erro detalhado ao buscar o vídeo.');
+        // Imprime o objeto de erro completo para máxima depuração
+        console.error(error); 
+        // --- FIM DA MELHORIA ---
+        
+        // Envia uma resposta de erro mais informativa para o frontend
+        const errorMessage = error.message || 'Erro desconhecido no servidor.';
+        res.status(500).json({ 
+            error: 'Falha ao obter informações do vídeo. Verifique a URL e tente novamente.',
+            details: errorMessage
+        });
     }
 });
 
 app.listen(port, () => {
-    console.log(`Servidor rodando em http://localhost:${port}`);
+    console.log(`[INFO] Servidor rodando em http://localhost:${port}`);
 });
 
