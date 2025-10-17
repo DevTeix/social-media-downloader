@@ -155,7 +155,7 @@
             try {
                 // !!! ATENÇÃO AQUI, ELTON !!!
                 // SUBSTITUA A LINHA ABAIXO PELA URL DO SEU SERVIÇO NO RENDER
-                const backendUrl = 'https://social-media-downloader-eqbu.onrender.com';
+                const backendUrl = 'COLE_A_URL_DO_SEU_BACKEND_DO_RENDER_AQUI';
                 
                 const response = await fetch(`${backendUrl}/api/download?url=${encodeURIComponent(url)}`);
 
