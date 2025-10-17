@@ -1,84 +1,80 @@
 const express = require('express');
 const cors = require('cors');
-const YTDlpWrap = require('yt-dlp-wrap').default;
+// MUDANÇA 1: Importando a nova biblioteca
+const youtubedl = require('youtube-dl-exec');
 const path = require('path');
 
-// --- NOVA ESTRUTURA PARA INICIALIZAÇÃO ASSÍNCRONA ---
-async function startServer() {
-    console.log('[SETUP] Verificando e baixando a versão mais recente do yt-dlp...');
-    try {
-        await YTDlpWrap.downloadFromGithub();
-        console.log('[SETUP] yt-dlp baixado com sucesso!');
-    } catch (error) {
-        console.error('[FATAL] Falha ao baixar o yt-dlp. O servidor não pode iniciar.', error);
-        // Se não conseguir baixar a dependência principal, encerra o processo.
-        process.exit(1); 
-    }
-    
-    const app = express();
-    const port = process.env.PORT || 3000;
-    
-    const ytDlpWrap = new YTDlpWrap();
-    
-    const allowedOrigins = [
-      'http://localhost:3000',
-      'https://devteix.github.io'
-    ];
-    
-    const corsOptions = {
-      origin: function (origin, callback) {
-        if (!origin || allowedOrigins.indexOf(origin) !== -1) {
-          callback(null, true);
-        } else {
-          callback(new Error('Not allowed by CORS'));
-        }
-      }
-    };
-    
-    app.use(cors(corsOptions));
-    
-    // Rota de teste para verificar se o servidor está no ar
-    app.get('/', (req, res) => {
-        res.status(200).json({ message: 'Servidor está no ar e funcionando!' });
-    });
-    
-    app.get('/api/download', async (req, res) => {
-        const videoUrl = req.query.url;
-    
-        if (!videoUrl) {
-            return res.status(400).json({ error: 'URL do vídeo é obrigatória.' });
-        }
-    
-        try {
-            console.log(`[INFO] Buscando metadados para: ${videoUrl}`);
-            const metadata = await ytDlpWrap.getVideoInfo(videoUrl);
-            
-            const videoInfo = {
-                title: metadata.title,
-                thumbnail: metadata.thumbnail,
-                videoUrl: metadata.url,
-            };
-            
-            console.log('[SUCCESS] Metadados encontrados:', videoInfo);
-            res.status(200).json(videoInfo);
-    
-        } catch (error) {
-            console.error('[ERROR] Ocorreu um erro detalhado ao buscar o vídeo.');
-            console.error(error); 
-            
-            const errorMessage = error.message || 'Erro desconhecido no servidor.';
-            res.status(500).json({ 
-                error: 'Falha ao obter informações do vídeo. Verifique a URL e tente novamente.',
-                details: errorMessage
-            });
-        }
-    });
-    
-    app.listen(port, () => {
-        console.log(`[INFO] Servidor rodando em http://localhost:${port}`);
-    });
-}
+const app = express();
+const port = process.env.PORT || 3000;
 
-// Inicia o servidor
-startServer();
+const allowedOrigins = [
+  'http://localhost:3000',
+  'https://devteix.github.io'
+];
+
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  }
+};
+
+app.use(cors(corsOptions));
+
+app.get('/', (req, res) => {
+    res.status(200).json({ message: 'Servidor está no ar e funcionando!' });
+});
+
+app.get('/api/download', async (req, res) => {
+    const videoUrl = req.query.url;
+
+    if (!videoUrl) {
+        return res.status(400).json({ error: 'URL do vídeo é obrigatória.' });
+    }
+
+    try {
+        console.log(`[INFO] Buscando metadados para: ${videoUrl}`);
+
+        // MUDANÇA 2: Usando a nova biblioteca
+        const metadata = await youtubedl(videoUrl, {
+            dumpSingleJson: true,
+            noWarnings: true,
+            noCallHome: true,
+            noCheckCertificate: true,
+            preferFreeFormats: true,
+            youtubeSkipDashManifest: true
+        });
+
+        const videoInfo = {
+            title: metadata.title,
+            thumbnail: metadata.thumbnail,
+            videoUrl: metadata.url || (metadata.formats && metadata.formats[0] ? metadata.formats[0].url : null),
+        };
+
+        if (!videoInfo.videoUrl) {
+            console.error('[ERROR] Não foi possível encontrar a URL do vídeo nos metadados.');
+            return res.status(500).json({ error: 'Não foi possível extrair a URL do vídeo.' });
+        }
+        
+        console.log('[SUCCESS] Metadados encontrados:', videoInfo);
+        res.status(200).json(videoInfo);
+
+    } catch (error) {
+        console.error('[ERROR] Ocorreu um erro detalhado ao buscar o vídeo.');
+        console.error(error); 
+        
+        const errorMessage = error.stderr || 'Erro desconhecido no servidor.';
+        res.status(500).json({ 
+            error: 'Falha ao obter informações do vídeo. A URL pode estar inválida, ser privada, ou o site pode não ser suportado.',
+            details: errorMessage
+        });
+    }
+});
+
+app.listen(port, () => {
+    console.log(`[INFO] Servidor rodando em http://localhost:${port}`);
+});
 
