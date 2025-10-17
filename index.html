@@ -1,79 +1,196 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Downloader de Mídias Sociais</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Inter', sans-serif;
+            background-color: #111827;
         }
+
+        .card {
+            background-color: #1f2937;
+            border: 1px solid #374151;
+            border-radius: 1.5rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            transition: all 0.3s ease-in-out;
+        }
+
+        .btn-gradient {
+            background-image: linear-gradient(to right, #3b82f6, #6366f1);
+            transition: all 0.3s ease-in-out;
+        }
+
+        .btn-gradient:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.3), 0 4px 6px -2px rgba(99, 102, 241, 0.2);
+        }
+
         .loader {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #3b82f6;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
+            border-top-color: #3b82f6;
             animation: spin 1s linear infinite;
         }
+
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            to {
+                transform: rotate(360deg);
+            }
         }
     </style>
 </head>
-<body class="bg-gray-900 text-white flex items-center justify-center min-h-screen p-4">
 
-    <div class="bg-gray-800 w-full max-w-2xl rounded-2xl shadow-2xl p-6 md:p-8 transform transition-all duration-500">
-        <!-- Cabeçalho -->
-        <div class="text-center mb-6">
-            <h1 class="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-600">
-                Downloader de Mídias
-            </h1>
-            <p class="text-gray-400 mt-2">Cole o link do vídeo, Reels ou Story para baixar.</p>
-        </div>
+<body class="flex items-center justify-center min-h-screen text-gray-200 p-4">
 
-        <!-- Ícones das Plataformas -->
-        <div class="flex justify-center items-center space-x-6 mb-8">
-            <!-- Twitter/X Icon -->
-            <svg class="w-8 h-8 text-gray-500" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path>
-            </svg>
-            <!-- Instagram Icon -->
-            <svg class="w-8 h-8 text-gray-500" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path fill-rule="evenodd" d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.024.06 1.378.06 3.808s-.012 2.784-.06 3.808c-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.024.048-1.378.06-3.808.06s-2.784-.012-3.808-.06c-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.048-1.024-.06-1.378-.06-3.808s.012-2.784.06-3.808c.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 016.08 2.525c.636-.247 1.363-.416 2.427-.465C9.53 2.013 9.884 2 12.315 2zM12 8.118a3.882 3.882 0 100 7.764 3.882 3.882 0 000-7.764zM12 14.25a2.25 2.25 0 110-4.5 2.25 2.25 0 010 4.5zm4.886-6.42a1.03 1.03 0 100-2.06 1.03 1.03 0 000 2.06z" clip-rule="evenodd"></path>
-            </svg>
-            <!-- Facebook Icon -->
-            <svg class="w-8 h-8 text-gray-500" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path fill-rule="evenodd" d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" clip-rule="evenodd"></path>
-            </svg>
-        </div>
+    <div class="w-full max-w-2xl mx-auto">
+        <div class="card p-8 md:p-12">
+            <div class="text-center mb-8">
+                <i class="fas fa-download text-5xl text-blue-500 mb-4"></i>
+                <h1 class="text-3xl md:text-4xl font-bold text-white">Downloader de Mídias</h1>
+                <p class="text-gray-400 mt-2">Cole o link do vídeo, Reels ou Story abaixo.</p>
+            </div>
 
-        <!-- Formulário de Input -->
-        <div class="flex flex-col sm:flex-row gap-3 mb-6">
-            <input type="text" id="urlInput" placeholder="https://..." class="flex-grow bg-gray-700 text-gray-200 border-2 border-gray-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition-colors">
-            <button id="downloadBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-transform transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-blue-500">
-                Baixar Vídeo
-            </button>
-        </div>
+            <div class="flex flex-col sm:flex-row items-center gap-4 mb-6">
+                <input id="urlInput" type="text" placeholder="https://instagram.com/..." class="w-full px-5 py-3 bg-gray-700 border border-gray-600 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-white placeholder-gray-500">
+                <button id="downloadBtn" class="w-full sm:w-auto btn-gradient text-white font-bold py-3 px-8 rounded-full flex items-center justify-center">
+                    <span id="btnText">Baixar</span>
+                    <i id="btnIcon" class="fas fa-arrow-down ml-2"></i>
+                </button>
+            </div>
 
-        <!-- Área de Resultados e Loading -->
-        <div id="statusArea" class="text-center min-h-[100px] flex items-center justify-center">
-            <div id="loader" class="loader hidden"></div>
-            <div id="results"></div>
-            <div id="errorMessage" class="text-red-400 font-medium"></div>
+            <!-- Area de Carregamento e Resultados -->
+            <div id="statusArea" class="mt-8 text-center min-h-[200px] flex items-center justify-center">
+                <!-- Loader -->
+                <div id="loader" class="hidden">
+                    <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-500 h-12 w-12 mb-4 mx-auto"></div>
+                    <p class="text-gray-400">Analisando o link...</p>
+                </div>
+
+                <!-- Mensagem de Erro -->
+                <div id="errorMessage" class="hidden text-red-400">
+                    <i class="fas fa-exclamation-triangle fa-2x mb-4"></i>
+                    <p id="errorText"></p>
+                </div>
+
+                <!-- Resultados -->
+                <div id="result" class="hidden w-full">
+                    <div class="bg-gray-800 rounded-xl p-6 flex flex-col md:flex-row items-center gap-6 border border-gray-700">
+                        <img id="thumbnail" src="" onerror="this.onerror=null;this.src='https://placehold.co/128x128/1f2937/a0aec0?text=Preview';" alt="Thumbnail do Vídeo" class="w-32 h-32 object-cover rounded-lg flex-shrink-0">
+                        <div class="text-left flex-grow">
+                            <p class="text-sm text-gray-400">Pronto para baixar!</p>
+                            <h3 id="title" class="text-lg font-semibold text-white truncate" title="Título do vídeo">Título do vídeo aqui...</h3>
+                            <a id="downloadLink" href="#" download class="mt-4 inline-block btn-gradient text-white font-bold py-2 px-6 rounded-full text-sm">
+                                <i class="fas fa-video mr-2"></i>Baixar Vídeo
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-        
-        <!-- Rodapé com o nome do desenvolvedor -->
-        <div class="text-center mt-6 pt-4 border-t border-gray-700/50">
-            <p class="text-sm text-gray-500">Desenvolvido por Elton Teixeira</p>
-        </div>
+        <footer class="text-center mt-8">
+            <p class="text-gray-500 text-sm">Desenvolvido por Elton Teixeira</p>
+        </footer>
     </div>
 
     <script>
-// ... existing code ... -->
+        const urlInput = document.getElementById('urlInput');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const btnText = document.getElementById('btnText');
+        const btnIcon = document.getElementById('btnIcon');
+
+        const statusArea = document.getElementById('statusArea');
+        const loader = document.getElementById('loader');
+        const errorMessage = document.getElementById('errorMessage');
+        const errorText = document.getElementById('errorText');
+        const result = document.getElementById('result');
+
+        const thumbnail = document.getElementById('thumbnail');
+        const title = document.getElementById('title');
+        const downloadLink = document.getElementById('downloadLink');
+
+        function isValidUrl(string) {
+            try {
+                new URL(string);
+                return true;
+            } catch (_) {
+                return false;
+            }
+        }
+
+        const resetUI = () => {
+            loader.classList.add('hidden');
+            errorMessage.classList.add('hidden');
+            result.classList.add('hidden');
+            downloadBtn.disabled = false;
+            btnText.textContent = 'Baixar';
+            btnIcon.className = 'fas fa-arrow-down ml-2';
+        };
+        
+        const showError = (message) => {
+            resetUI();
+            errorText.textContent = message;
+            errorMessage.classList.remove('hidden');
+        };
+
+        downloadBtn.addEventListener('click', async () => {
+            const url = urlInput.value.trim();
+
+            if (!url || !isValidUrl(url)) {
+                showError('Por favor, insira um link válido.');
+                return;
+            }
+
+            // Inicia UI de carregamento
+            resetUI();
+            loader.classList.remove('hidden');
+            downloadBtn.disabled = true;
+            btnText.textContent = 'Carregando...';
+            btnIcon.className = 'fas fa-spinner fa-spin ml-2';
+
+            try {
+                // !!! ATENÇÃO AQUI, ELTON !!!
+                // SUBSTITUA A LINHA ABAIXO PELA URL DO SEU SERVIÇO NO RENDER
+                const backendUrl = 'https://social-media-downloader-eqbu.onrender.com/';
+                
+                const response = await fetch(`${backendUrl}/api/download?url=${encodeURIComponent(url)}`);
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || `Erro ${response.status}: Falha ao buscar dados.`);
+                }
+                
+                const data = await response.json();
+
+                // Mostra os resultados
+                thumbnail.src = data.thumbnail || 'https://placehold.co/128x128/1f2937/a0aec0?text=Preview';
+                title.textContent = data.title || 'Vídeo sem título';
+                title.title = data.title || 'Vídeo sem título';
+                downloadLink.href = data.videoUrl;
+
+                resetUI();
+                result.classList.remove('hidden');
+
+            } catch (error) {
+                console.error("Erro detalhado:", error);
+                // Verifica se é erro de rede (backend offline ou CORS)
+                if (error instanceof TypeError) {
+                     showError('Erro de conexão. Verifique se o servidor backend está no ar e configurado corretamente.');
+                } else {
+                    showError(error.message);
+                }
+            } finally {
+                downloadBtn.disabled = false;
+                btnText.textContent = 'Baixar';
+                btnIcon.className = 'fas fa-arrow-down ml-2';
+            }
+        });
+    </script>
+</body>
+
+</html>
 
